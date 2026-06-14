@@ -124,7 +124,7 @@ export default function ComplianceMappingPanel({ policies = [], evidence = [] })
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <select
-                    className="glass-input w-full"
+                    className="glass-select w-full"
                     value={selectedRequirement}
                     onChange={(e) => setSelectedRequirement(e.target.value)}
                   >
@@ -134,7 +134,7 @@ export default function ComplianceMappingPanel({ policies = [], evidence = [] })
                     ))}
                   </select>
                   <select
-                    className="glass-input w-full"
+                    className="glass-select w-full"
                     value={selectedEvidence}
                     onChange={(e) => setSelectedEvidence(e.target.value)}
                   >

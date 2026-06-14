@@ -138,10 +138,10 @@ export default function EvidencePanel({ evidence, setEvidence }) {
               <p className="chart-subtitle m-0">These artifacts are actively being mapped to requirements.</p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-1.5 border border-slate-700">
+                <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-1.5 border border-slate-700">
                 <Filter className="w-3.5 h-3.5 text-slate-400" />
                 <select 
-                  className="bg-transparent text-xs text-slate-200 focus:outline-none"
+                  className="glass-select text-xs text-slate-200"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >

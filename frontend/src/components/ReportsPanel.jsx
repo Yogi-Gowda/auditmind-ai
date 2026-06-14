@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -7,6 +7,7 @@ import {
   Search,
   Filter,
 } from "lucide-react";
+import { generateReport, fetchReportsList, getReportPdfUrl } from '../services/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,21 +32,43 @@ export default function ReportsPanel() {
 
   const handleGenerate = () => {
     setGenerating(true);
+    generateReport('On-Demand Audit', 'full', null)
+      .then((res) => {
+        // API returns report object
+        setReports((prev) => [res, ...prev]);
+      })
+      .catch((err) => {
+        console.error('Failed to generate report', err);
+        alert('Failed to generate report. Check backend logs.');
+      })
+      .finally(() => setGenerating(false));
+  };
 
-    setTimeout(() => {
-      const newReport = {
-        id: `REP${Math.floor(100 + Math.random() * 900)}`,
-        title: "On-Demand Full Stack Audit",
-        type: "internal",
-        framework: "All",
-        score: Math.floor(Math.random() * 20) + 75,
-        created_at: new Date().toISOString(),
-        risk_score: Math.floor(Math.random() * 30) + 10,
-      };
+  useEffect(() => {
+    // Load existing reports from backend
+    fetchReportsList()
+      .then((list) => setReports(list || []))
+      .catch((err) => console.error('Failed to fetch reports', err));
+  }, []);
 
-      setReports((prev) => [newReport, ...prev]);
-      setGenerating(false);
-    }, 2000);
+  const handleDownload = async (reportId) => {
+    try {
+      const url = getReportPdfUrl(reportId);
+      const resp = await fetch(url, { method: 'GET' });
+      if (!resp.ok) throw new Error('Network response was not ok');
+      const blob = await resp.blob();
+      const link = document.createElement('a');
+      const blobUrl = window.URL.createObjectURL(blob);
+      link.href = blobUrl;
+      link.download = `audit_report_${reportId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error('Download failed', e);
+      alert('Failed to download report.');
+    }
   };
 
   return (
@@ -189,6 +212,7 @@ export default function ReportsPanel() {
                   </span>
 
                   <button
+                    onClick={() => handleDownload(report.id)}
                     className="text-slate-200 hover:text-white transition-colors p-1"
                     title="Download PDF"
                   >

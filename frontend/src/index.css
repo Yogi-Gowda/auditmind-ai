@@ -220,6 +220,24 @@ body {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.10);
 }
 
+/* Dropdown / select matching glass input */
+.glass-select {
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  padding: 8px 10px;
+  border-radius: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.glass-select:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.10);
+}
+
 /* ─────────────────────────────────────────────
    CARDS
 ───────────────────────────────────────────── */

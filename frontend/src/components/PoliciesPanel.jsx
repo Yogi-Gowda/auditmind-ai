@@ -141,7 +141,7 @@ export default function PoliciesPanel({ policies, setPolicies }) {
               <select
                 value={policyForm.framework}
                 onChange={(e) => setPolicyForm({ ...policyForm, framework: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-lg glass-input"
+                className="glass-select w-full text-sm rounded-lg"
               >
                 <option value="GDPR">GDPR (Privacy)</option>
                 <option value="SOX">SOX (Financial)</option>

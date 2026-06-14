@@ -123,6 +123,11 @@ export const fetchNarrative = async (requirementId) => {
   return res.data;
 };
 
+export const generateBulkNarratives = async (framework = null) => {
+  const res = await client.post('/narratives/bulk', { framework });
+  return res.data;
+};
+
 // Reports
 export const generateReport = async (title, reportType, framework = null) => {
   const res = await client.post('/reports/generate', {

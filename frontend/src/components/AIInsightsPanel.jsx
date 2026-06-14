@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Sparkles, ArrowRight, ShieldAlert, AlertTriangle, Lightbulb, CheckCircle, Zap, TrendingUp } from 'lucide-react';
+import { generateBulkNarratives } from '../services/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,7 +20,22 @@ const typeConfig = {
 };
 
 export default function AIInsightsPanel({ data }) {
-  const { aiInsights, metrics } = data;
+  const { aiInsights = [], metrics = {} } = data || {};
+  const [insights, setInsights] = React.useState(aiInsights || []);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const refreshInsights = async () => {
+    setIsRefreshing(true);
+    try {
+      const result = await generateBulkNarratives();
+      setInsights(result.narratives || []);
+    } catch (err) {
+      console.error('Bulk narrative refresh failed', err);
+      alert('Failed to refresh AI insights.');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
@@ -51,21 +67,30 @@ export default function AIInsightsPanel({ data }) {
               Continuously analyzing your compliance posture across frameworks. 
               The AI engine has processed {metrics.totalEv} evidence artifacts, and {metrics.totalReqs} policy requirements to generate actionable intelligence.
             </p>
-            <div className="flex items-center gap-6 mt-3">
-              {[
-                { label: "Insights Generated", value: aiInsights.length, icon: Zap },
-                { label: "Overall Risk", value: `${metrics.overallRisk}%`, icon: TrendingUp },
-                { label: "Accuracy Score", value: "96.2%", icon: Brain },
-              ].map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <div key={stat.label} className="flex items-center gap-2">
-                    <Icon className="w-3.5 h-3.5 text-slate-100" />
-                    <span className="text-xs text-slate-500">{stat.label}:</span>
-                    <span className="text-xs text-white font-semibold">{stat.value}</span>
-                  </div>
-                );
-              })}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-3">
+              <div className="flex items-center gap-4 flex-wrap">
+                {[
+                  { label: "Insights Generated", value: insights.length, icon: Zap },
+                  { label: "Overall Risk", value: `${metrics.overallRisk}%`, icon: TrendingUp },
+                  { label: "Accuracy Score", value: "96.2%", icon: Brain },
+                ].map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div key={stat.label} className="flex items-center gap-2">
+                      <Icon className="w-3.5 h-3.5 text-slate-100" />
+                      <span className="text-xs text-slate-500">{stat.label}:</span>
+                      <span className="text-xs text-white font-semibold">{stat.value}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <button
+                onClick={refreshInsights}
+                disabled={isRefreshing}
+                className="btn-ghost text-xs font-semibold px-4 py-2 border border-white/[0.12]"
+              >
+                {isRefreshing ? 'Refreshing...' : 'Regenerate Narratives'}
+              </button>
             </div>
           </div>
         </div>
@@ -73,12 +98,12 @@ export default function AIInsightsPanel({ data }) {
 
       {/* Insights Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {aiInsights.length === 0 ? (
+        {insights.length === 0 ? (
           <div className="col-span-full card card-glow p-8 text-center text-slate-400">
             No intelligence insights generated yet.
           </div>
         ) : (
-          aiInsights.map((insight, i) => {
+          insights.map((insight, i) => {
             const config = typeConfig[insight.type] || typeConfig.info;
             const Icon = config.icon;
 

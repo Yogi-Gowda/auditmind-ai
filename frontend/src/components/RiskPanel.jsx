@@ -9,6 +9,7 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
 import { useCountUp } from '../hooks/useCountUp';
+import { fetchRiskAssessment } from '../services/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -76,16 +77,31 @@ function generateDynamicHeatmap() {
 }
 
 export default function RiskPanel({ data }) {
-  const { metrics, frameworkScores } = data;
+  const [localMetrics, setLocalMetrics] = useState(data?.metrics || { overallRisk: 0 });
+  const [frameworkScores, setFrameworkScores] = useState(data?.frameworkScores || []);
   const [animateCharts, setAnimateCharts] = useState(false);
-  const riskScore = useCountUp(metrics.overallRisk, 2000);
+  const riskScore = useCountUp(localMetrics.overallRisk || 0, 2000);
 
   useEffect(() => {
     const t = setTimeout(() => setAnimateCharts(true), 400);
     return () => clearTimeout(t);
   }, []);
 
-  const radarData = frameworkScores.map(fw => ({
+  useEffect(() => {
+    // Try to fetch authoritative risk score from backend
+    fetchRiskAssessment()
+      .then((res) => {
+        if (res && typeof res.risk_score !== 'undefined') {
+          setLocalMetrics((prev) => ({ ...prev, overallRisk: res.risk_score }));
+        }
+      })
+      .catch((err) => {
+        // keep client-side metrics if backend unavailable
+        console.debug('Risk API unavailable', err);
+      });
+  }, []);
+
+  const radarData = (frameworkScores || []).map(fw => ({
     framework: fw.name,
     score: fw.score,
     target: 90,
@@ -101,7 +117,7 @@ export default function RiskPanel({ data }) {
     return { grade: "F", label: "Critical", color: "#f43f5e" };
   };
 
-  const grade = getRiskGrade(metrics.overallRisk);
+  const grade = getRiskGrade(localMetrics.overallRisk);
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
@@ -129,7 +145,7 @@ export default function RiskPanel({ data }) {
                       filter: `drop-shadow(0 0 8px ${grade.color}40)`,
                     }}
                     initial={{ strokeDashoffset: 478 }}
-                    animate={{ strokeDashoffset: 478 - (478 * metrics.overallRisk / 100) }}
+                    animate={{ strokeDashoffset: 478 - (478 * localMetrics.overallRisk / 100) }}
                     transition={{ duration: 2, ease: [0.4, 0, 0.2, 1], delay: 0.3 }}
                   />
                 </svg>
