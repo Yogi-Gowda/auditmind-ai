@@ -10,3 +10,4 @@ python-dotenv==1.0.1
 aiofiles==24.1.0
 httpx==0.27.0
 openai==1.40.0
+framer-motion recharts==2.0.0
