@@ -224,7 +224,7 @@ body {
 .glass-select {
   background: var(--glass2);
   border: 1px solid var(--border2);
-  color: var(--text);
+  color: #000 !important;
   transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   padding: 8px 10px;
   border-radius: 8px;
@@ -236,6 +236,17 @@ body {
   border-color: rgba(255, 255, 255, 0.28);
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.10);
+  color: #ffffff !important;
+}
+
+/* Ensure native option text is visible where possible */
+.glass-select option {
+  color: #000 !important;
+}
+
+/* Fallback: apply to all selects to ensure dropdown text is visible */
+select {
+  color: #000 !important;
 }
 
 /* ─────────────────────────────────────────────
